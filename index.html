@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Flappy Dino</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC"
+      crossorigin="anonymous"
+    />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css"
+      rel="stylesheet"
+      crossorigin="anonymous"
+    />
+    <link rel="stylesheet" href="index.css" />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+  </head>
+  <body>
+    <div class="ctn">
+      <!-- Start notification-->
+      <div
+        class="modal fade"
+        id="staticBackdrop"
+        data-bs-backdrop="static"
+        data-bs-keyboard="false"
+        tabindex="-1"
+        aria-labelledby="staticBackdropLabel"
+        aria-hidden="true"
+      >
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-body">
+              <div class="t-title text-center"><h4>Hướng dẫn chơi</h4></div>
+              <p class="p-normal mb-10">
+                Chào mừng bạn đến với game luyện tập của EDUSO
+              </p>
+              <p class="p-normal"><strong>Cách tính điểm</strong></p>
+              <p class="p-normal">Vượt chướng ngại vật +1</p>
+              <p class="p-normal">Trả lời đúng câu hỏi ở lần đầu tiên +1</p>
+              <p class="p-normal mb-10">Trả lời đúng câu hỏi đặc biệt +3</p>
+              <p class="p-normal"><strong>Luật chơi</strong></p>
+              <ul>
+                <li class="li-normal">
+                  Nếu chạm chướng ngại vật thì bạn phải trả lời đúng một trong
+                  hai câu hỏi để tiếp tục hoặc mất lượt
+                </li>
+                <li class="li-normal">
+                  Nếu trả lời đúng ở lượt đầu tiên thì vẫn được cộng điểm vượt
+                  chướng ngại vật
+                </li>
+                <li class="li-normal">
+                  Trong lúc chơi, bạn sẽ bắt gặp những ngôi sao cơ hội để tích
+                  thêm điểm. Bạn có một lượt trả lời
+                </li>
+              </ul>
+              <div class="d-button text-center">
+                <button
+                  type="button"
+                  class="btn btn-common"
+                  onclick="closeFirstNoti()"
+                >
+                  Đã hiểu
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- Start notification-->
+      <!-- score -->
+      <div class="top-score">
+        <div class="total-score">
+          <p class="t-total-score">điểm tổng</p>
+          <div class="v-total-score"><text>320</text></div>
+        </div>
+        <div class="ratings-score">
+          <p class="t-ratings-score">xếp hạng</p>
+          <div class="v-ratings-score"><text>3</text></div>
+        </div>
+        <div class="target-score">
+          <p class="t-target-score">mục tiêu tuần</p>
+          <div class="v-target-score"><text id="point">90</text><text>/</text><text id="target-point">200</text></div>
+        </div>
+      </div>
+      <!-- score -->
+      <!-- user guide -->
+      <div class="user-guide" id="user-guide">
+        <button
+          type="button"
+          class="btn btn-user_guide"
+          data-bs-toggle="modal"
+          data-bs-target="#staticBackdrop"
+        >
+          ?
+        </button>
+      </div>
+      <!-- user guide -->
+      <!-- normal question dialog -->
+      <!-- 1.show question-->
+      <div
+        class="modal fade"
+        id="questionDialog"
+        data-bs-backdrop="static"
+        data-bs-keyboard="false"
+        tabindex="-1"
+        aria-labelledby="questionDialogLabel"
+        aria-hidden="true"
+      >
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-body">
+              <div
+                class="d-close-dialog btn-close-dialog"
+                onclick="closeQuestion()"
+              >
+                <i class="fa-solid fa-circle-xmark"></i>
+              </div>
+              <div class="question-content" data-close-q="0" id="question-content"></div>
+              <div class="d-bottom">
+                <div class="d-heart" id="heart">
+                  <i class="fa-solid fa-heart"></i
+                  ><i class="fa-solid fa-heart"></i>
+                </div>
+                <div class="d-button" id="submit-answer">
+                  <button type="button" class="btn-submit-disable">Nộp</button>
+                </div>
+              </div>
+              <div class="d-desc">
+                <span id="heart-desc">Trả lời đúng để chơi tiếp</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- 1.show question-->
+      <!-- 2.skip question-->
+      <div
+        class="modal fade"
+        id="closeQuestionDialog"
+        data-bs-backdrop="static"
+        data-bs-keyboard="false"
+        tabindex="-1"
+        aria-labelledby="closeQuestionDialogLabel"
+        aria-hidden="true"
+      >
+        <div class="modal-dialog modal-dialog-centered modal-dialog-yesno">
+          <div class="modal-content">
+            <div class="modal-body">
+              <div class="content">
+                <h5>Bạn có chắc muốn dừng màn chơi?</h5>
+              </div>
+              <div class="d-button-yesno">
+                <button
+                  type="button"
+                  class="btn btn-common"
+                  onclick="chooseNo()"
+                >
+                  Không
+                </button>
+                <button type="button" class="btn btn-no" onclick="chooseYes()">
+                  Có
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- 2.skip question-->
+      <!-- normal question dialog -->
+
+      <!-- star question dialog-->
+      <!-- 1.show question-->
+      <div
+        class="modal fade"
+        id="starQuestionDialog"
+        data-bs-backdrop="static"
+        data-bs-keyboard="false"
+        tabindex="-1"
+        aria-labelledby="starQuestionDialogLabel"
+        aria-hidden="true"
+      >
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-body">
+              <div class="d-star-dialog">
+                <i class="fa-solid fa-star"></i>
+              </div>
+              <div
+                class="d-close-dialog btn-close-dialog"
+                onclick="closeStarQuestion()"
+              >
+                <i class="fa-solid fa-circle-xmark"></i>
+              </div>
+              <div class="question-content" data-close-q="0" id="star_question-content"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- 1.show question-->
+      <!-- 2.skip question-->
+      <div
+        class="modal fade"
+        id="closeStarQuestionDialog"
+        data-bs-backdrop="static"
+        data-bs-keyboard="false"
+        tabindex="-1"
+        aria-labelledby="closeStarQuestionDialogLabel"
+        aria-hidden="true"
+      >
+        <div class="modal-dialog modal-dialog-centered modal-dialog-yesno">
+          <div class="modal-content">
+            <div class="modal-body">
+              <div class="content">
+                <h5>Nếu bỏ qua, bạn sẽ không được cộng điểm</h5>
+              </div>
+              <div class="star-yesno-desc">Bạn có muốn bỏ qua?</div>
+              <div class="d-star-button-yesno">
+                <button
+                  type="button"
+                  class="btn btn-common"
+                  onclick="chooseStarNo()"
+                >
+                  Không
+                </button>
+                <button
+                  type="button"
+                  class="btn btn-no"
+                  onclick="chooseStarYes()"
+                >
+                  Có
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- 2.skip question-->
+      <!-- star question dialog-->
+      <!-- main -->
+      <div id="scoreboard"><text id="score" class="t-score">0</text></div>
+      <canvas id="c" width="360px" height="640px"></canvas>
+      <div id="start-screen">
+        <div id="ctrl-ctn">
+          <div id="up" class="ctrl-btn">↑</div>
+          <div id="space" class="ctrl-btn">SPACE</div>
+          <div id="tap" class="ctrl-btn">TAP</div>
+        </div>
+      </div>
+      <!-- main -->
+      <!-- Game over-->
+      <div
+        class="modal fade"
+        id="staticGameOver"
+        data-bs-backdrop="static"
+        data-bs-keyboard="false"
+        tabindex="-1"
+        aria-labelledby="staticBackdropLabel"
+        aria-hidden="true"
+      >
+        <div class="modal-dialog modal-dialog-centered">
+          <div class="modal-content">
+            <div class="modal-body">
+              <h4 class="modal-title text-center">GAME OVER</h4>
+              <div class="gameover-board">
+                <div class="item">
+                  <div class="index">1</div>
+                  <div class="separate-left"></div>
+                  <div class="avatar">
+                    <img
+                      src="https://lh3.googleusercontent.com/ogw/ADea4I68T6gziKuMXh4U8FKshn31hRPFrDfmi3lN-HrnFw=s32-c-mo"
+                      width="30"
+                      height="30"
+                    />
+                  </div>
+                  <div class="name">Nguyễn Hoàng Thắng</div>
+                  <div class="score">300</div>
+                </div>
+                <div class="item item-active">
+                  <div class="index">2</div>
+                  <div class="separate-left"></div>
+                  <div class="avatar">
+                    <img
+                      src="https://lh3.googleusercontent.com/ogw/ADea4I68T6gziKuMXh4U8FKshn31hRPFrDfmi3lN-HrnFw=s32-c-mo"
+                      width="30"
+                      height="30"
+                    />
+                  </div>
+                  <div class="name">Nguyễn Hoàng Thắng</div>
+                  <div class="score">300</div>
+                </div>
+                <div class="item">
+                  <div class="index">3</div>
+                  <div class="separate-left"></div>
+                  <div class="avatar">
+                    <img
+                      src="https://lh3.googleusercontent.com/ogw/ADea4I68T6gziKuMXh4U8FKshn31hRPFrDfmi3lN-HrnFw=s32-c-mo"
+                      width="30"
+                      height="30"
+                    />
+                  </div>
+                  <div class="name">Nguyễn Hoàng Thắng</div>
+                  <div class="score">300</div>
+                </div>
+              </div>
+              <div class="button-below">
+                <div>
+                  <button type="button" class="btn btn-replay" id="replay">
+                    <i class="fa-solid fa-circle-play"></i>
+                  </button>
+                </div>
+                <div>
+                  <button
+                    type="button"
+                    class="btn btn-leaderboard"
+                    onclick="showLeaderboard()"
+                  >
+                    <i class="fa-solid fa-trophy"></i>
+                  </button>
+                </div>
+              </div>
+              <div class="gameover-desc">
+                <p class="p-gameover-desc">
+                  <i class="fa-solid fa-face-grin-squint"></i>
+                </p>
+                <p class="p-gameover-desc">
+                  Thêm 15 điểm nữa bạn sẽ vượt qua Nguyễn Quang Đại. Hãy cố gắng
+                  lên!
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- Game over-->
+      <!-- Leader board-->
+      <div
+        class="modal fade"
+        id="leaderBoardDialog"
+        data-bs-backdrop="static"
+        data-bs-keyboard="false"
+        tabindex="-1"
+        aria-labelledby="leaderBoardDialogLabel"
+        aria-hidden="true"
+      >
+        <div class="modal-dialog modal-dialog-leaderboard">
+          <div class="modal-content">
+            <div class="modal-body">
+              <div class="t-title-leaderboard text-center"><h4>xếp hạng</h4></div>
+              <div
+                class="d-close-leaderboard btn-close-dialog"
+                onclick="closeLeaderboard()"
+              >
+                <i class="fa-solid fa-circle-xmark"></i>
+              </div>
+              <div class="leaderboard-content">
+                <ul class="nav nav-pills mb-3" role="tablist">
+                  <li class="nav-item" role="presentation">
+                    <button class="nav-link active" data-bs-toggle="pill" onclick="showTab('class')" type="button" role="tab" aria-controls="class-ranking" aria-selected="true"><span>Lớp</span></button>
+                  </li>
+                  <li class="nav-item" role="presentation">
+                    <button class="nav-link" data-bs-toggle="pill" onclick="showTab('grade')" type="button" role="tab" aria-controls="grade-ranking" aria-selected="false"><span>Khối</span></button>
+                  </li>
+                </ul>
+                <div class="tab-content">
+                  <div class="tab-pane fade show active" id="class-ranking" role="tabpanel" aria-labelledby="class-ranking-tab"></div>
+                  <div class="tab-pane fade" id="grade-ranking" role="tabpanel" aria-labelledby="grade-ranking-tab"></div>
+                </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- Leader board-->
+
+      <div id="gameover-screen">
+        <div id="gameover">GAME OVER</div>
+      </div>
+    </div>
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
+      crossorigin="anonymous"
+    ></script>
+    <script src="index.js"></script>
+    <script src="api.js"></script>
+  </body>
+</html>
